@@ -16,7 +16,7 @@
 ## 2. Methodology
 ### 2.1. Problem Statement  
 
-- Text classification on short to middle size texts
+- Multi-class text classification on short to middle size texts
 
 ### 2.2. Solution Algorithm
 
