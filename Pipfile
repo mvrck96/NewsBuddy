@@ -1,0 +1,27 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+mlflow = "*"
+numpy = "*"
+pandas = "*"
+scikit-learn = "*"
+google-cloud-storage = "*"
+python-dotenv = "*"
+tensorflow = "*"
+psycopg2-binary = "*"
+ipykernel = "*"
+pre-commit = "*"
+black = "*"
+isort = "*"
+pytest = "*"
+pylint = "*"
+pytest-dotenv = "*"
+requests = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
