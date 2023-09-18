@@ -1,0 +1,1 @@
+Folder for keeping credential files locally. gitignored

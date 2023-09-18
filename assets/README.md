@@ -1,0 +1,1 @@
+Folder for keeping assets such as images.
