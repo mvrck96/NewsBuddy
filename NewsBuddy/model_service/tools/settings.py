@@ -6,7 +6,7 @@ from pydantic import ValidationError, BaseSettings
 
 class Settings(BaseSettings):
     """Model for service settings."""
-    
+
     service_name: str
     service_version: str
     structured_logs: bool = False
@@ -31,5 +31,6 @@ def get_settings() -> Settings:
     logger.info("Envs are correct !")
     logger.info(f"Received envs {Settings()}")
     return Settings()
+
 
 service_settings = get_settings()

@@ -15,4 +15,5 @@ def create_logger(serialized: bool = True) -> logger:
     logger.info(f"Logger initialized, structured logs: {serialized}")
     return logger
 
+
 service_logger = create_logger()
