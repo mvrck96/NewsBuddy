@@ -20,6 +20,12 @@ pytest = "*"
 pylint = "*"
 pytest-dotenv = "*"
 requests = "*"
+fastapi = "*"
+gunicorn = "*"
+loguru = "*"
+pydantic = "*"
+pydantic-settings = "*"
+uvicorn = "*"
 
 [dev-packages]
 
