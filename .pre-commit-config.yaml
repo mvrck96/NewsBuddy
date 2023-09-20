@@ -24,7 +24,8 @@ repos:
     - id: pylint
       name: pylint
       entry: pylint
-      language: system
+      language: python
+      additional_dependencies: [pylint]
       types: [python]
       args: [
         "-rn", # Only display messages
@@ -37,9 +38,7 @@ repos:
     - id: pytest-check
       name: pytest-check
       entry: pytest
-      language: system
+      language: python
       pass_filenames: false
       always_run: true
-      args: [
-        "tests/"
-      ]
+      additional_dependencies: [pytest]

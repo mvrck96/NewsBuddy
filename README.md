@@ -9,7 +9,7 @@ Using extracted entity we can determine whether this news have a positive or neg
 ## Architecture
 
 Possible approach here is to use classic service configuration with front and backend.
-Backend could utilize microservice architecture. And frontend could be designed as ordinary web interface. Alternatively we can use telegram bot as UI.   
+Backend could utilize microservice architecture. And frontend could be designed as ordinary web interface. Alternatively we can use telegram bot as UI.
 
 ## Tech stack
 
@@ -21,4 +21,3 @@ Possible technologies:
 - Tests - pytest
 - Containerization Dockerfile + docker-compose
 - Usage of pre-commiter
-
