@@ -3,7 +3,7 @@ import sys
 from loguru import logger
 
 
-def create_logger(serialized: bool = True) -> logger:
+def create_logger(serialized: bool = False) -> logger:
     """Creates logger according to user settings.
 
     @param  serialized[bool]: Structured logging flag

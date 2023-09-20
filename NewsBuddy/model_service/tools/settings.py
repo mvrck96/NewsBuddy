@@ -1,7 +1,7 @@
 import sys
 
 from loguru import logger
-from pydantic import ValidationError, BaseSettings
+from pydantic import BaseSettings, ValidationError
 
 
 class Settings(BaseSettings):

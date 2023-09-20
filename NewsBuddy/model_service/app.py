@@ -1,12 +1,10 @@
 import requests
 
+from data_models.predict_request import Predict
 from fastapi import FastAPI, Response, status
 from fastapi.responses import RedirectResponse
-
-from data_models.predict_request import Predict
-
-from tools.settings import service_settings
 from tools.logger import service_logger as logger
+from tools.settings import service_settings
 from tools.state import State
 
 
@@ -16,7 +14,10 @@ app = FastAPI()
 state.set_live_status(True)
 
 
-API_URL = "https://api-inference.huggingface.co/models/mrm8488/distilroberta-finetuned-financial-news-sentiment-analysis"
+API_URL = (
+    "https://api-inference.huggingface.co/models/mrm8488/"
+    "distilroberta-finetuned-financial-news-sentiment-analysis"
+)
 HEADERS = {"Authorization": f"Bearer {service_settings.api_token}"}
 
 
@@ -25,7 +26,15 @@ state.set_ready_status(True)
 
 # User-side endpoints
 @app.post("/predict", tags=["Model"])
-def base_predict(req: Predict):
+def base_predict(req: Predict) -> dict:
+    """Performs sentiment classification.
+
+    Args:
+        req (Predict): Request from UI with user text
+
+    Returns:
+        dict: Predict-proba of three classes
+    """
     payload = {"inputs": req.text}
     response = requests.post(API_URL, headers=HEADERS, json=payload)
     return response.json()

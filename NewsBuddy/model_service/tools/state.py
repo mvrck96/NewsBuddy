@@ -1,5 +1,4 @@
 class State:
-
     _instance = None
 
     def __new__(cls):
