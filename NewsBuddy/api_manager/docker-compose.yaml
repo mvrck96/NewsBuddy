@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  api-manager:
+    container_name: API_MANAGER
+    build: .
+    env_file:
+      - .env
+    restart: always
+    expose:
+      - ${API_MANAGER_DOCKER_PORT}
+    ports:
+      - ${API_MANAGER_DOCKER_PORT}:${API_MANAGER_DOCKER_PORT}

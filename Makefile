@@ -40,6 +40,16 @@ setup_venv:
 	pipenv install --dev
 	pre-commit install
 
+
+#############################################
+################# API MANAGER
+##############################################
+news_api_up:
+	cd NewsBuddy/api_manager && docker-compose up && cd ~
+
+news_api_down:
+	cd NewsBuddy/api_manager && docker-compose down && cd ~
+
 #############################################
 ################# UTILITIES
 ##############################################
