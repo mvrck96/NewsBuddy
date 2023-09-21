@@ -30,8 +30,8 @@ repos:
       args: [
         "-rn", # Only display messages
         "-sn", # Don't display the score
+        "--rcfile=.pylintrc", # Link to your config file
         "--recursive=y",
-        "--fail-under=5",
       ]
 - repo: local
   hooks:
