@@ -40,7 +40,7 @@ repos:
         "--rcfile=.pylintrc", # Link to your config file
         "--recursive=y",
         "--fail-under=5",
-        "--disable=all"
+        # "--disable=all"
       ]
 
 - repo: local
