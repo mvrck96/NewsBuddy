@@ -1,17 +1,12 @@
 import requests
 
 from data_models.predict_request import Predict
-from fastapi import FastAPI, Response, status
+from fastapi import FastAPI, HTTPException, Response, status
 from fastapi.responses import RedirectResponse
 from tools.logger import service_logger as logger
 from tools.settings import service_settings
 from tools.state import State
-
-
-state = State()
-
-app = FastAPI()
-state.set_live_status(True)
+from tools.utils import check_hugging_face_connection
 
 
 API_URL = (
@@ -21,7 +16,16 @@ API_URL = (
 HEADERS = {"Authorization": f"Bearer {service_settings.api_token}"}
 
 
-state.set_ready_status(True)
+state = State()
+
+app = FastAPI()
+state.set_live_status(True)
+
+api_accessible = check_hugging_face_connection(API_URL)
+# Readiness init should be rewritten in order to exit dead state
+state.set_ready_status(True) if api_accessible else state.set_ready_status(
+    False
+)
 
 
 # User-side endpoints
@@ -36,8 +40,17 @@ def base_predict(req: Predict) -> dict:
         dict: Predict-proba of three classes
     """
     payload = {"inputs": req.text}
+    logger.info(f"Incoming request: {payload}")
     response = requests.post(API_URL, headers=HEADERS, json=payload)
-    return response.json()
+    if (
+        not isinstance(response.json(), list)
+        and "error" in response.json().keys()
+    ):
+        logger.warning("Model not ready !")
+        raise HTTPException(status_code=503, detail=response.json()["error"])
+    elif isinstance(response.json(), list):
+        logger.info(f"Response: {response.json()}")
+        return response.json()
 
 
 # Service-side endpoints
