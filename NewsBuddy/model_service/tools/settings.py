@@ -28,7 +28,7 @@ def get_settings() -> Settings:
     except ValidationError:
         logger.critical("Envs were set incorrectly !")
         sys.exit(0)
-    logger.info("Envs are correct !")
+    logger.success("Envs are correct !")
     logger.info(f"Received envs {Settings()}")
     return Settings()
 
