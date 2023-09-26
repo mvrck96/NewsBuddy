@@ -24,7 +24,6 @@ RUN set -eux && \
 COPY main.py .
 COPY ./tools/ ./tools/
 COPY .env .
-COPY /.streamlit ./.streamlit
 
 
 # Remove binary files setuid/setgid
