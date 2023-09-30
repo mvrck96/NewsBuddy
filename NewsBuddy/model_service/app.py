@@ -18,7 +18,7 @@ HEADERS = {"Authorization": f"Bearer {service_settings.api_token}"}
 
 state = State()
 
-app = FastAPI()
+app = FastAPI(root_path=service_settings.root_path)
 state.set_live_status(True)
 
 api_accessible = check_hugging_face_connection(API_URL)

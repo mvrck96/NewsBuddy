@@ -13,6 +13,8 @@ class Settings(BaseSettings):
 
     api_token: str
 
+    root_path: str = None
+
     class Config:  # NOQA
         env_file = ".env"
         env_file_encoding = "utf-8"
