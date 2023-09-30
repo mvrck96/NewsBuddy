@@ -36,5 +36,4 @@ USER user
 
 # Run
 CMD streamlit run main.py \
-  --server.enableCORS=false \
-  --server.enableWebsocketCompression=false\
+  --server.enableCORS=false 
