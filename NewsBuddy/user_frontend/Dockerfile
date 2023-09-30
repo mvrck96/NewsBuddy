@@ -34,5 +34,7 @@ RUN addgroup --gid $GROUP_ID user && \
   adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
 USER user
 
-# Run on 8001 port
-CMD streamlit run main.py
+# Run
+CMD streamlit run main.py \
+  --server.enableCORS=false \
+  --server.enableWebsocketCompression=false\
