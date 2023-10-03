@@ -7,6 +7,7 @@ from tools.logger import service_logger as logger
 from tools.settings import service_settings
 from tools.state import State
 from tools.utils import check_hugging_face_connection
+from tools.metrics import setup_middleware
 
 
 API_URL = (
@@ -19,9 +20,13 @@ HEADERS = {"Authorization": f"Bearer {service_settings.api_token}"}
 state = State()
 
 app = FastAPI(root_path=service_settings.root_path)
+
+# Setup middleware for Prometheus metrics
+setup_middleware(app)
 state.set_live_status(True)
 
 api_accessible = check_hugging_face_connection(API_URL)
+
 # Readiness init should be rewritten in order to exit dead state
 state.set_ready_status(True) if api_accessible else state.set_ready_status(
     False
