@@ -78,7 +78,7 @@ def readiness(response: Response):
     return {"readiness": _status}
 
 
-@app.get("/", tags=["redirect"])
+@app.get(f"/{app.root_path}", tags=["redirect"])
 def redirect_docs():
     """Redirect on SwaggerUI."""
     logger.info("Request to docs.")
