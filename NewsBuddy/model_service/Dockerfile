@@ -34,7 +34,8 @@ RUN addgroup --gid $GROUP_ID user && \
   adduser --disabled-password --gecos '' --uid $USER_ID --gid $GROUP_ID user
 USER user
 
-CMD gunicorn app:app --worker-class uvicorn.workers.UvicornWorker\
-    --workers 1\
-    --root-path="/api"\
-    --bind 0.0.0.0:8000
+# CMD gunicorn app:app --worker-class uvicorn.workers.UvicornWorker\
+#     --workers 1\
+#     --bind 0.0.0.0:8000
+
+CMD uvicorn app:app --root-path="/api" --port=8000
