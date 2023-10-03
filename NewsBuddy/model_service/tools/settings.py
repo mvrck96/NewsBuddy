@@ -1,4 +1,5 @@
 import sys
+from typing import Optional
 
 from loguru import logger
 from pydantic import BaseSettings, ValidationError
@@ -9,11 +10,11 @@ class Settings(BaseSettings):
 
     service_name: str
     service_version: str
-    structured_logs: bool = False
+    structured_logs: Optional[bool] = False
 
     api_token: str
 
-    root_path: str = None
+    root_path: Optional[str] = None
 
     class Config:  # NOQA
         env_file = ".env"
