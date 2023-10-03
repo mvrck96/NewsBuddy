@@ -25,12 +25,12 @@ services:
     env_file:
       - ./NewsBuddy/model_service/.env
 
-  # Disabled for now
-  # prometheus:
-  #   container_name: prometheus
-  #   image: prometheus-newsbuddy
-  #   build:
-  #     context: ./infrastructure/prometheus/
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - 9090:9090
+  prometheus:
+    container_name: prometheus
+    image: prometheus-newsbuddy
+    build:
+      context: ./infrastructure/prometheus/
+      dockerfile: Dockerfile
+    ports:
+      - 9090:9090
+      
