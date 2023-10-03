@@ -36,4 +36,6 @@ USER user
 
 # Run
 CMD streamlit run main.py \
-  --server.enableCORS=false 
+  --server.port=8501 \
+  --browser.gatherUsageStats=false \
+  --theme.base="light"
