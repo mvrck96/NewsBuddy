@@ -78,11 +78,11 @@ def readiness(response: Response):
     return {"readiness": _status}
 
 
-@app.get(f"/{app.root_path}/", tags=["redirect"])
+@app.get(f"/", tags=["redirect"])
 def redirect_docs():
     """Redirect on SwaggerUI."""
     logger.info("Request to docs.")
-    return RedirectResponse(url=f"{app.root_path}/docs")
+    return RedirectResponse(url=f"/{app.root_path}/docs")
 
 
 @app.on_event("shutdown")
