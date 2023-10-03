@@ -15,7 +15,7 @@ def check_hugging_face_connection(url: str) -> bool:
     """
     try:
         response = requests.get(url)
-        logger.debug(response.status_code)
+        logger.debug(f"HuggingFace response code: {response.status_code}")
         logger.success(f"Connection to HuggingFace is ok !")
         return True
     except ConnectionError:
