@@ -10,7 +10,7 @@ services:
       - ${API_MANAGER_DOCKER_PORT}
     ports:
       - ${API_MANAGER_DOCKER_PORT}:${API_MANAGER_DOCKER_PORT}
-    profiles: ["news_api"]
+    profiles: ["api"]
 
   prefect_db:
     image: postgres:15.3-alpine

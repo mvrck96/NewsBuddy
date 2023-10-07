@@ -44,11 +44,38 @@ setup_venv:
 #############################################
 ################# API MANAGER
 ##############################################
-news_api_up:
-	cd NewsBuddy/api_manager && docker-compose up && cd ~
+api:
+	cd NewsBuddy/api_manager && docker-compose --profile api up --build  && cd -
 
-news_api_down:
-	cd NewsBuddy/api_manager && docker-compose down && cd ~
+#############################################
+################# ORCHESTRATION: PREFECT
+##############################################
+pr_srv_up:
+	cd NewsBuddy/api_manager && docker-compose --profile server up --build  && cd -
+
+pr_srv_down:
+	cd NewsBuddy/api_manager && docker-compose --profile server down  && cd -
+
+
+
+pr_agent_local:
+	prefect agent start --work-queue default
+
+pr_ag_up:
+	cd NewsBuddy/api_manager && docker-compose --profile agent up --build  && cd -
+
+pr_ag_down:
+	cd NewsBuddy/api_manager && docker-compose --profile agent down && cd -
+
+pr_deploy:
+# python ./NewsBuddy/api_manager/orchestration/create_blocks.py &&
+	python ./NewsBuddy/api_manager/flows/fetch_news.py
+
+# pr_deploy:
+# 	source NewsBuddy/api_manager/orchestration/create_deployments.sh &&
+# 	prefect deployment build NewsBuddy/api_manager/flows/fetch_news.py:fetch_news -n test -sb github/github -q default -o test-deployment.yaml &&
+# 	prefect deployment apply test-deployment.yaml
+
 
 #############################################
 ################# UTILITIES

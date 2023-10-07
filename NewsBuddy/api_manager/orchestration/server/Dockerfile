@@ -1,4 +1,4 @@
-FROM  prefecthq/prefect:2-python3.11
+FROM  prefecthq/prefect:2.13.5-python3.10
 
 # COPY ./requirements.txt .
 # COPY ./.prefectignore .
