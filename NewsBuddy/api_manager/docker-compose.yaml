@@ -10,3 +10,69 @@ services:
       - ${API_MANAGER_DOCKER_PORT}
     ports:
       - ${API_MANAGER_DOCKER_PORT}:${API_MANAGER_DOCKER_PORT}
+    profiles: ["news_api"]
+
+  prefect_db:
+    image: postgres:15.3-alpine
+    env_file:
+      - .env
+    restart: always
+    command:
+      - postgres
+      - -c
+      - max_connections=150
+    environment:
+      - POSTGRES_USER=${PREFECT_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${PREFECT_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${PREFECT_POSTGRES_DB}
+      - POSTGRES_PORT=${PREFECT_POSTGRES_PORT}
+    expose:
+      - ${PREFECT_POSTGRES_PORT}
+    volumes:
+      - prefect_db_volume:/var/lib/postgresql/data
+    profiles: ["server"]
+
+  ### Prefect Server API and UI
+  prefect_server:
+    build: ./orchestration/server/.
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - prefect_data:/root/.prefect
+      - prefect_flows:/flows
+    entrypoint: ["prefect", "server", "start"]
+    environment:
+      # If you want to access Prefect Server from anywhere other than the Docker host machine, you will need to change
+      # PREFECT_UI_URL to match the external hostname/IP used to load the UI in your web browser.
+      # PREFECT_UI_URL: http://127.0.0.0:4200/api
+      PREFECT_API_URL: http://${PREFECT_API_IP}:${PREFECT_API_PORT}/api
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+      PREFECT_LOGGING_SERVER_LEVEL: WARNING
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://${PREFECT_POSTGRES_USER}:${PREFECT_POSTGRES_PASSWORD}@prefect_db:${PREFECT_POSTGRES_PORT}/${PREFECT_POSTGRES_DB}
+    ports:
+      - ${PREFECT_API_PORT}:${PREFECT_API_PORT}
+    depends_on:
+      prefect_db:
+        condition: service_started
+    profiles: ["server"]
+
+    ## Prefect Agent
+  prefect_agent:
+    build: ./orchestration/agent/.
+    restart: always
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "agent", "start", "-q", "default"]
+    environment:
+      - PREFECT_API_URL=http://prefect_server:4200/api
+#       Use PREFECT_API_KEY if connecting the agent to Prefect Cloud
+#     - PREFECT_API_KEY=YOUR_API_KEY
+    profiles: ["agent"]
+
+volumes:
+  prefect_db_volume:
+  prefect_data:
+  prefect_flows:
+networks:
+  default:
+    name: api_manager_network
