@@ -23,9 +23,9 @@ requests = "*"
 fastapi = "*"
 gunicorn = "*"
 loguru = "*"
-pydantic = "*"
-pydantic-settings = "*"
 uvicorn = "*"
+prefect = "*"
+prefect-github = "*"
 
 [dev-packages]
 
