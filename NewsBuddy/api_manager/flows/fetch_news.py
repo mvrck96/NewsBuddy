@@ -13,6 +13,7 @@ from prefect.deployments import Deployment
 from prefect.filesystems import GitHub
 from prefect.server.schemas.schedules import CronSchedule
 from prefect.task_runners import SequentialTaskRunner
+from pydantic import BaseModel
 
 load_dotenv(find_dotenv())
 
@@ -40,27 +41,36 @@ def send_request(params: Dict) -> dict:
     return response.json()
 
 
+class Parameters(BaseModel):
+    """_summary_
+
+    Args:
+        BaseModel (_type_): _description_
+    """
+
+    tickers: List[str] = (None,)
+    topics: List[str] = (None,)
+    time_from: str = (None,)
+    time_to: str = (None,)
+    sort: str = ("LATEST",)
+    limit: str = (None,)
+
+
 @flow(
     task_runner=SequentialTaskRunner(),
 )
-def fetch_news(
-    tickers: List[str] = None,
-    topics: List[str] = None,
-    time_from: str = None,
-    time_to: str = None,
-    sort: str = "LATEST",
-    limit: str = None,
-):
+def fetch_news(params: Parameters):
     """_summary_"""
+    params = Parameters.dict()
 
-    params = {
-        "tickers": tickers,
-        "topics": topics,
-        "time_from": time_from,
-        "time_to": time_to,
-        "sort": sort,
-        "limit": limit,
-    }
+    # params = {
+    #     "tickers": tickers,
+    #     "topics": topics,
+    #     "time_from": time_from,
+    #     "time_to": time_to,
+    #     "sort": sort,
+    #     "limit": limit,
+    # }
 
     # Removing None values
     params = {k: v for k, v in params.items() if v is not None}
