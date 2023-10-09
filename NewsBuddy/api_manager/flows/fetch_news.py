@@ -22,8 +22,23 @@ API_MANAGER_DOCKER_PORT = os.environ["API_MANAGER_DOCKER_PORT"]
 API_MANAGER_CONTAINER_NAME = os.environ["API_MANAGER_CONTAINER_NAME"]
 
 
+class Parameters(BaseModel):
+    """_summary_
+
+    Args:
+        BaseModel (_type_): _description_
+    """
+
+    tickers: List[str] = (None,)
+    topics: List[str] = (None,)
+    time_from: str = (None,)
+    time_to: str = (None,)
+    sort: str = ("LATEST",)
+    limit: str = (None,)
+
+
 @task(name="Store to database")
-def store_data():
+def store_to_database():
     """_summary_"""
     logger = get_run_logger()
     logger.info("Store to database")
@@ -48,26 +63,9 @@ def send_request(params: Dict) -> dict:
     return response.json()
 
 
-class Parameters(BaseModel):
-    """_summary_
-
-    Args:
-        BaseModel (_type_): _description_
-    """
-
-    tickers: List[str] = (None,)
-    topics: List[str] = (None,)
-    time_from: str = (None,)
-    time_to: str = (None,)
-    sort: str = ("LATEST",)
-    limit: str = (None,)
-
-
-@flow(
-    task_runner=SequentialTaskRunner(),
-)
-def fetch_news(params: Parameters = None):
-    """_summary_"""
+@task(name="Process parameters")
+def process_parameters(params: Parameters = None) -> Dict:
+    """ """
     logger = get_run_logger()
 
     if params:
@@ -79,8 +77,37 @@ def fetch_news(params: Parameters = None):
 
     # Removing None values
     params = {k: v for k, v in params.items() if v is not None}
+    logger.info(f"Input parameters {json.dumps(params, indent=4)}")
+    return params
+
+
+@task(name="Process response")
+def process_response(response: Dict) -> Dict:
+    """_summary_
+
+    Args:
+        response (Dict): _description_
+
+    Returns:
+        Dict: _description_
+    """
+    logger = get_run_logger()
+    logger.info("Processed the response")
+    return response
+
+
+@flow(
+    task_runner=SequentialTaskRunner(),
+)
+def fetch_news(params: Parameters = None):
+    """_summary_"""
+    logger = get_run_logger()
+
+    params = process_parameters(params=params)
 
     response_json = send_request(params=params)
+
+    response_json = process_response(response_json)
     logger.info(json.dumps(response_json, indent=4))
 
 
