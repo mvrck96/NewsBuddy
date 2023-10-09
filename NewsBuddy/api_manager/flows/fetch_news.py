@@ -70,6 +70,8 @@ def fetch_news(params: Parameters):
     logger = get_run_logger()
     params = params.dict()
 
+    logger.info(f"{params}")
+
     # Removing None values
     params = {k: v for k, v in params.items() if v is not None}
 

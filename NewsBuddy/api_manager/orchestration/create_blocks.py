@@ -20,7 +20,6 @@ gh_block = GitHub(
     repository=GITHUB_REPO_PATH,
     include_git_objects=False,
     reference=GITHUB_REPO_BRANCH,
-    # path="./"
 )
 gh_block.save(PREFECT_BLOCKNAME_GITHUB, overwrite=True)
 print(
