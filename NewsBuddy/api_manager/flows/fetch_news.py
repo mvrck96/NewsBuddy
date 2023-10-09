@@ -4,6 +4,7 @@
         _type_: _description_
 """
 import os
+from typing import Dict, List
 
 import requests
 from dotenv import find_dotenv, load_dotenv
@@ -20,7 +21,7 @@ API_MANAGER_CONTAINER_NAME = os.environ["API_MANAGER_CONTAINER_NAME"]
 
 
 @task(name="send GET to the news API")
-def send_request() -> dict:
+def send_request(params: Dict) -> dict:
     """_summary_
 
     Returns:
@@ -31,7 +32,7 @@ def send_request() -> dict:
     url = f"http://{API_MANAGER_CONTAINER_NAME}:{API_MANAGER_DOCKER_PORT}/{endpoint_name}"
     response = requests.get(
         url,
-        params=dict(time_from="20230925T1001", time_to="20230925T1201", topics=["technology"]),
+        params=params,
         timeout=300,
     )
     logger.info("Request sent...")
@@ -42,9 +43,29 @@ def send_request() -> dict:
 @flow(
     task_runner=SequentialTaskRunner(),
 )
-def fetch_news():
+def fetch_news(
+    tickers: List[str] = None,
+    topics: List[str] = None,
+    time_from: str = None,
+    time_to: str = None,
+    sort: str = "LATEST",
+    limit: str = None,
+):
     """_summary_"""
-    response_json = send_request()
+
+    params = {
+        "tickers": tickers,
+        "topics": topics,
+        "time_from": time_from,
+        "time_to": time_to,
+        "sort": sort,
+        "limit": limit,
+    }
+
+    # Removing None values
+    params = {k: v for k, v in params.items() if v is not None}
+
+    response_json = send_request(params=params)
     print(response_json)
 
 

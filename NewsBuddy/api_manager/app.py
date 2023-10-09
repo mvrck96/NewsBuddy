@@ -76,18 +76,18 @@ def get_news(
     limit: int = 50,
 ) -> dict:
     """
-    Get news articles based on specified parameters.
-
-    Args:
-        topics (List[ALPHAVANTAGE_TOPICS], optional): The news topics. Comma-separated if multiple.
-        tickers (List[str], optional): The stock/crypto/forex symbols. Comma-separated if multiple.
-        time_from (str, optional): The starting date and time (YYYYMMDDTHHMM format).
-        time_to (str, optional): The ending date and time (YYYYMMDDTHHMM format).
-        sort (str, optional): Sorting order ("LATEST", "EARLIEST", or "RELEVANCE").
-        limit (int, optional): The maximum number of results to return.
-
-    Returns:
-        dict: The response from the external API.
+        Get news articles based on specified parameters. \n
+    \n
+        Args: \n
+            topics (List[ALPHAVANTAGE_TOPICS], optional): The news topics. Comma-separated if multiple. \n
+            tickers (List[str], optional): The stock/crypto/forex symbols. Comma-separated if multiple. \n
+            time_from (str, optional): The starting date and time (YYYYMMDDTHHMM format). \n
+            time_to (str, optional): The ending date and time (YYYYMMDDTHHMM format). \n
+            sort (str, optional): Sorting order ("LATEST", "EARLIEST", or "RELEVANCE"). \n
+            limit (int, optional): The maximum number of results to return. \n
+    \n
+        Returns: \n
+            dict: The response from the external API. \n
     """
     if time_from and not is_valid_date(time_from):
         return {"error": "Invalid 'time_from' format. Use YYYYMMDDTHHMM."}
