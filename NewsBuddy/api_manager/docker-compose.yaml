@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   api-manager:
-    container_name: API_MANAGER
+    container_name: api_manager
     build: .
     env_file:
       - .env
@@ -34,6 +34,7 @@ services:
 
   ### Prefect Server API and UI
   prefect_server:
+    container_name: prefect_server
     build: ./orchestration/server/.
     restart: always
     env_file:
@@ -62,9 +63,11 @@ services:
   prefect_agent:
     build: ./orchestration/agent/.
     restart: always
+    env_file:
+      - .env
     entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "agent", "start", "-q", "default"]
     environment:
-      - PREFECT_API_URL=http://prefect_server:4200/api
+      - PREFECT_API_URL=http://${PREFECT_API_IP}:${PREFECT_API_PORT}/api
 #       Use PREFECT_API_KEY if connecting the agent to Prefect Cloud
 #     - PREFECT_API_KEY=YOUR_API_KEY
     profiles: ["agent"]
