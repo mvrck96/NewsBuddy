@@ -9,16 +9,14 @@ import requests
 from dotenv import find_dotenv, load_dotenv
 from prefect import flow, get_run_logger, task
 from prefect.deployments import Deployment
-from prefect.filesystems import GitHub, LocalFileSystem
-from prefect.infrastructure import DockerContainer
+from prefect.filesystems import GitHub
 from prefect.server.schemas.schedules import CronSchedule
 from prefect.task_runners import SequentialTaskRunner
 
 load_dotenv(find_dotenv())
-print(find_dotenv())
-
 
 API_MANAGER_DOCKER_PORT = os.environ["API_MANAGER_DOCKER_PORT"]
+API_MANAGER_CONTAINER_NAME = os.environ["API_MANAGER_CONTAINER_NAME"]
 
 
 @task(name="send GET to the news API")
@@ -30,8 +28,7 @@ def send_request() -> dict:
     """
     logger = get_run_logger()
     endpoint_name = "news"
-    IP_ADDRESS = "api_manager"
-    url = f"http://{IP_ADDRESS}:{API_MANAGER_DOCKER_PORT}/{endpoint_name}"
+    url = f"http://{API_MANAGER_CONTAINER_NAME}:{API_MANAGER_DOCKER_PORT}/{endpoint_name}"
     response = requests.get(
         url,
         params=dict(time_from="20230925T1001", time_to="20230925T1201", topics=["technology"]),
@@ -70,3 +67,7 @@ if __name__ == "__main__":
         path="./NewsBuddy",
     )
     deployment.apply()
+    print(
+        "Created Prefect deployment \
+      **********************************************************************"
+    )

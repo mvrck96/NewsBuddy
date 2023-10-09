@@ -44,37 +44,28 @@ setup_venv:
 #############################################
 ################# API MANAGER
 ##############################################
-api:
-	cd NewsBuddy/api_manager && docker-compose --profile api up --build  && cd -
+api_manager:
+	@echo "Starting news api, prefect server and prefect agent containers"
+	cd NewsBuddy/api_manager && \
+	docker-compose --profile all up --build -d && \
+	cd - && \
+	$(MAKE) pr_create_blocks && \
+	$(MAKE) pr_deploy
 
 #############################################
 ################# ORCHESTRATION: PREFECT
 ##############################################
-pr_srv_up:
-	cd NewsBuddy/api_manager && docker-compose --profile server up --build  && cd -
-
-pr_srv_down:
-	cd NewsBuddy/api_manager && docker-compose --profile server down  && cd -
-
-
-
-pr_agent_local:
-	prefect agent start --work-queue default
-
-pr_ag_up:
-	cd NewsBuddy/api_manager && docker-compose --profile agent up --build  && cd -
-
-pr_ag_down:
-	cd NewsBuddy/api_manager && docker-compose --profile agent down && cd -
+pr_create_blocks:
+	@echo "Create Prefect blocks: http://127.0.0.1:4200/blocks"
+	python ./NewsBuddy/api_manager/orchestration/create_blocks.py
 
 pr_deploy:
-# python ./NewsBuddy/api_manager/orchestration/create_blocks.py &&
+	@echo "Create Prefect deployment: http://127.0.0.1:4200/deployments/"
 	python ./NewsBuddy/api_manager/flows/fetch_news.py
 
-# pr_deploy:
-# 	source NewsBuddy/api_manager/orchestration/create_deployments.sh &&
-# 	prefect deployment build NewsBuddy/api_manager/flows/fetch_news.py:fetch_news -n test -sb github/github -q default -o test-deployment.yaml &&
-# 	prefect deployment apply test-deployment.yaml
+
+
+
 
 
 #############################################

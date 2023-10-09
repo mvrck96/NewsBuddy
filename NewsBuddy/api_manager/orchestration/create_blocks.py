@@ -5,7 +5,6 @@ import os
 from dotenv import find_dotenv, load_dotenv
 from prefect.filesystems import GitHub
 
-print(find_dotenv())
 load_dotenv(find_dotenv())
 
 PREFECT_BLOCKNAME_GITHUB = os.environ.get("PREFECT_BLOCKNAME_GITHUB")
@@ -24,4 +23,7 @@ gh_block = GitHub(
     # path="./"
 )
 gh_block.save(PREFECT_BLOCKNAME_GITHUB, overwrite=True)
-print(f"Created Github block named {PREFECT_BLOCKNAME_GITHUB}")
+print(
+    f"Created Github block named {PREFECT_BLOCKNAME_GITHUB} \
+      **********************************************************************"
+)

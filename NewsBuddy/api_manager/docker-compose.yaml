@@ -1,7 +1,7 @@
 version: "3.9"
 services:
   api-manager:
-    container_name: api_manager
+    container_name: ${API_MANAGER_CONTAINER_NAME}
     build: .
     env_file:
       - .env
@@ -10,7 +10,9 @@ services:
       - ${API_MANAGER_DOCKER_PORT}
     ports:
       - ${API_MANAGER_DOCKER_PORT}:${API_MANAGER_DOCKER_PORT}
-    profiles: ["api"]
+    profiles:
+      - api
+      - all
 
   prefect_db:
     image: postgres:15.3-alpine
@@ -30,7 +32,9 @@ services:
       - ${PREFECT_POSTGRES_PORT}
     volumes:
       - prefect_db_volume:/var/lib/postgresql/data
-    profiles: ["server"]
+    profiles:
+      - server
+      - all
 
   ### Prefect Server API and UI
   prefect_server:
@@ -57,7 +61,9 @@ services:
     depends_on:
       prefect_db:
         condition: service_started
-    profiles: ["server"]
+    profiles:
+      - server
+      - all
 
     ## Prefect Agent
   prefect_agent:
@@ -67,10 +73,15 @@ services:
       - .env
     entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "agent", "start", "-q", "default"]
     environment:
-      - PREFECT_API_URL=http://${PREFECT_API_IP}:${PREFECT_API_PORT}/api
+      - PREFECT_API_URL=http://prefect_server:4200/api
 #       Use PREFECT_API_KEY if connecting the agent to Prefect Cloud
 #     - PREFECT_API_KEY=YOUR_API_KEY
-    profiles: ["agent"]
+    depends_on:
+      prefect_server:
+        condition: service_started
+    profiles:
+      - agent
+      - all
 
 volumes:
   prefect_db_volume:
