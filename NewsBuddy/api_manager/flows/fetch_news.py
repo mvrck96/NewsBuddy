@@ -21,6 +21,13 @@ API_MANAGER_DOCKER_PORT = os.environ["API_MANAGER_DOCKER_PORT"]
 API_MANAGER_CONTAINER_NAME = os.environ["API_MANAGER_CONTAINER_NAME"]
 
 
+@task(name="Store to database")
+def store_data():
+    """_summary_"""
+    logger = get_run_logger()
+    logger.info("Store to database")
+
+
 @task(name="send GET to the news API")
 def send_request(params: Dict) -> dict:
     """_summary_
@@ -36,8 +43,7 @@ def send_request(params: Dict) -> dict:
         params=params,
         timeout=300,
     )
-    logger.info("Request sent...")
-
+    logger.info(f"Request sent to {url}")
     return response.json()
 
 
@@ -61,22 +67,14 @@ class Parameters(BaseModel):
 )
 def fetch_news(params: Parameters):
     """_summary_"""
-    params = Parameters.dict()
-
-    # params = {
-    #     "tickers": tickers,
-    #     "topics": topics,
-    #     "time_from": time_from,
-    #     "time_to": time_to,
-    #     "sort": sort,
-    #     "limit": limit,
-    # }
+    logger = get_run_logger()
+    params = params.dict()
 
     # Removing None values
     params = {k: v for k, v in params.items() if v is not None}
 
     response_json = send_request(params=params)
-    print(response_json)
+    logger.info(response_json)
 
 
 if __name__ == "__main__":
