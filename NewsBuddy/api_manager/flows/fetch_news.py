@@ -20,10 +20,7 @@ print(find_dotenv())
 for key, value in os.environ.items():
     print(f"{key}: {value}")
 
-API_MANAGER_DOCKER_PORT = os.environ["API_MANAGER_DOCKER_PORT"]
-PREFECT_BLOCKNAME_GITHUB = os.environ.get("PREFECT_BLOCKNAME_GITHUB")
-GITHUB_REPO_PATH = os.environ.get("GITHUB_REPO_PATH")
-GITHUB_REPO_BRANCH = os.environ.get("GITHUB_REPO_BRANCH")
+API_MANAGER_DOCKER_PORT = 8000  # os.environ["API_MANAGER_DOCKER_PORT"]
 
 
 @task(name="send GET to the news API")
@@ -59,6 +56,7 @@ def fetch_news():
 if __name__ == "__main__":
     # fetch_news()
 
+    PREFECT_BLOCKNAME_GITHUB = os.environ.get("PREFECT_BLOCKNAME_GITHUB")
     # Deploy the prefect workflow
     deployment = Deployment.build_from_flow(
         flow=fetch_news,
