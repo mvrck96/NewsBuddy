@@ -16,10 +16,13 @@ from prefect.task_runners import SequentialTaskRunner
 
 load_dotenv(find_dotenv())
 
+print(find_dotenv())
+for key, value in os.environ.items():
+    print(f"{key}: {value}")
+
 API_MANAGER_DOCKER_PORT = os.environ["API_MANAGER_DOCKER_PORT"]
 PREFECT_BLOCKNAME_GITHUB = os.environ.get("PREFECT_BLOCKNAME_GITHUB")
 GITHUB_REPO_PATH = os.environ.get("GITHUB_REPO_PATH")
-GITHUB_REPO_PATH = "https://github.com/mvrck96/NewsBuddy.git"
 GITHUB_REPO_BRANCH = os.environ.get("GITHUB_REPO_BRANCH")
 
 
@@ -54,27 +57,28 @@ def fetch_news():
 
 
 if __name__ == "__main__":
-    fetch_news()
+    # fetch_news()
 
-    # # Deploy the prefect workflow
-    # deployment = Deployment.build_from_flow(
-    #     flow=fetch_news,
-    #     name="main",
-    #     version=1,
-    #     output="deploy.yaml",
-    #     # storage=LocalFileSystem(basepath='./NewsBuddy/api_manager/flows/'),
-    #     # skip_upload=True,
-    #     # storage=GitHub(
-    #     #     name=PREFECT_BLOCKNAME_GITHUB,
-    #     #     repository=GITHUB_REPO_PATH,
-    #     #     include_git_objects=False,
-    #     #     reference=GITHUB_REPO_BRANCH,
-    #     #     path="NewsBuddy/api_manager/flows/fetch_news.py"
-    #     # ),
-    #     schedule=CronSchedule(
-    #         cron="0 8 * * *",  # Run the prefect flow at 08:00 every day
-    #         timezone="Europe/Amsterdam",
-    #     ),
-    #     # path="fetch_news.py"
-    # )
-    # deployment.apply()
+    # Deploy the prefect workflow
+    deployment = Deployment.build_from_flow(
+        flow=fetch_news,
+        name="main",
+        version=1,
+        output="deploy.yaml",
+        # storage=LocalFileSystem(basepath='opt/prefect/'),
+        skip_upload=True,
+        storage=GitHub.load(PREFECT_BLOCKNAME_GITHUB),
+        # storage=GitHub(
+        #     name=PREFECT_BLOCKNAME_GITHUB,
+        #     repository=GITHUB_REPO_PATH,
+        #     include_git_objects=False,
+        #     reference=GITHUB_REPO_BRANCH,
+        #     # path="NewsBuddy/api_manager/flows/fetch_news.py"
+        # ),
+        # schedule=CronSchedule(
+        #     cron="0 8 * * *",  # Run the prefect flow at 08:00 every day
+        #     timezone="Europe/Amsterdam",
+        # ),
+        path="./NewsBuddy",
+    )
+    deployment.apply()

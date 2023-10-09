@@ -4,11 +4,15 @@ from enum import Enum
 from typing import List
 
 import requests
+from dotenv import find_dotenv, load_dotenv
 from fastapi import FastAPI, Query, Response, status
 from fastapi.responses import RedirectResponse
 from tools.logger import service_logger as logger
 from tools.settings import service_settings
 from tools.state import State
+
+load_dotenv(find_dotenv())
+
 
 state = State()
 

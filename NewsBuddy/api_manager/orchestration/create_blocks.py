@@ -21,8 +21,7 @@ gh_block = GitHub(
     repository=GITHUB_REPO_PATH,
     include_git_objects=False,
     reference=GITHUB_REPO_BRANCH,
-    # path="NewsBuddy/api_manager/flows/fetch_news.py"
+    # path="./"
 )
-# gh_block.get_directory(local_path='NewsBuddy/api_manager/flows/')
 gh_block.save(PREFECT_BLOCKNAME_GITHUB, overwrite=True)
 print(f"Created Github block named {PREFECT_BLOCKNAME_GITHUB}")

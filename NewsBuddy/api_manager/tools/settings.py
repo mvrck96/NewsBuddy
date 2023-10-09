@@ -16,10 +16,12 @@ class Settings(BaseSettings):
     ALPHAVANTAGE_TOKEN: str
 
     class Config:  # NOQA
-        """"""
+        """ """
 
         env_file = ".env"
         env_file_encoding = "utf-8"
+
+        extra = "allow"
 
 
 def get_settings() -> Settings:
