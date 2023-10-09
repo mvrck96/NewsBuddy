@@ -3,6 +3,7 @@
     Returns:
         _type_: _description_
 """
+import json
 import os
 from typing import Dict, List
 
@@ -76,7 +77,7 @@ def fetch_news(params: Parameters):
     params = {k: v for k, v in params.items() if v is not None}
 
     response_json = send_request(params=params)
-    logger.info(response_json)
+    logger.info(json.dumps(response_json, indent=4))
 
 
 if __name__ == "__main__":
