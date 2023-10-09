@@ -66,10 +66,14 @@ class Parameters(BaseModel):
 @flow(
     task_runner=SequentialTaskRunner(),
 )
-def fetch_news(params: Parameters):
+def fetch_news(params: Parameters = None):
     """_summary_"""
     logger = get_run_logger()
-    params = params.dict()
+
+    if params:
+        params = params.dict()
+    else:
+        params = {}
 
     logger.info(f"{params}")
 
