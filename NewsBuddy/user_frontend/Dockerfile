@@ -22,6 +22,7 @@ RUN set -eux && \
     pip install --no-cache-dir --requirement requirements.txt
 
 COPY main.py .
+COPY data_models.py .
 COPY ./tools/ ./tools/
 COPY .env .
 
