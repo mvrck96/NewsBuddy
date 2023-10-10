@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     service_version: str
 
     model_service_url: AnyUrl
-    # api_manager_url: AnyUrl
+    api_manager_url: AnyUrl
     alphavantage_token: str
 
     class Config:  # NOQA
