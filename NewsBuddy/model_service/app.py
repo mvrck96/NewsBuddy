@@ -88,6 +88,13 @@ def redirect_docs():
     return RedirectResponse(url=f"{app.root_path}/docs")
 
 
+@app.on_event("startup")
+def on_startup():
+    """Huggingface API warmup."""
+    logger.info("Warming up model !")
+    payload = {"text": "text"}
+    requests.post(API_URL, headers=HEADERS, json=payload)
+
 @app.on_event("shutdown")
 def on_shutdown():
     """State management on shutdown."""
