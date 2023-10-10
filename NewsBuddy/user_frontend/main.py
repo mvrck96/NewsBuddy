@@ -1,14 +1,10 @@
 import requests
 import streamlit as st
 import streamlit.components.v1 as components
-from pydantic import BaseModel
 
 from tools.settings import service_settings
-from data_models import AlphavantageTopics
-
-
-class Predict(BaseModel):
-    text: str
+from tools.logger import service_logger
+from data_models import AlphavantageTopics, Predict, ApiManagerRequest
 
 
 # Set page title and icon
@@ -35,24 +31,31 @@ components.html(html_string)
 
 def intro():
     """Draw intro text when no options selected."""
-    st.title("Welcome to NewsBuddy !")
-    st.sidebar.success("Select option above.")
+    st.sidebar.success("Select option above :arrow_up:")
 
     st.markdown(
-        """
-        Some great intro about our best app :))
+    """
+        # Welocome to NewsBuddy !
+        
+        > **Stock news analysis made for people**
+
+        
+
     """
     )
 
 
 def user_input():
     """Uses user input as model input."""
+
+    st.markdown("**FEATURE INFO PLACEHOLDER**")
+
     user_news = st.text_area(
         "Text to analyze", "AAPL fired 10 thousand employees"
     )
+    session = requests.Session()
 
     if st.button("Analyze"):
-        session = requests.Session()
         payload = Predict(text=user_news).json()
         try:
             response = session.post(
@@ -60,54 +63,70 @@ def user_input():
             ).json()
             st.json(response)
         except requests.exceptions.ConnectionError as e:
-            st.warning("Can't connect to model service !")
+            st.error("Can't connect to model service !")
+            service_logger.debug(e)
 
 
 def user_based_feed():
+    """Score latest news by user settings."""
+
+    st.markdown("**FEATURE INFO PLACEHOLDER**")
+
     with st.form("news_feed_settings"):
         tickers = st.multiselect(
-            label="Tickets", options=["AAPL", "MSFT", "TSLA", "NVDA", "GOOGL"]
+            label="Select tickers", 
+            options=["AAPL", "MSFT", "TSLA", "NVDA", "GOOGL"]
         )
-        tickers = ",".join(tickers)
-
         topics = st.multiselect(
-            label="topics", options=[i.value for i in AlphavantageTopics]
+            label="Select topics", options=[i.value for i in AlphavantageTopics]
         )
-        topics = ",".join(topics)
-
         limit = st.slider("Number of news", 0, 50, 10, 1)
-        apikey = service_settings.alphavantage_token
 
-        if st.form_submit_button("Generate feed"):
-            url = f"https://www.alphavantage.co/query?function=NEWS_SENTIMENT&tickers={tickers}&topics={topics}y&apikey={service_settings.alphavantage_token}&limit={limit}"
+        if st.form_submit_button("Analyze latest news !"):
+            api_man_payload = ApiManagerRequest(
+                tickers=tickers,
+                topics=topics,
+                limit=limit
+            ).json()
+            try:
+                api_man_resp = requests.post(service_settings.api_manager_url,
+                                            api_man_payload)
+                titles = [n["title"] for n in api_man_resp["feed"]]
+                session = requests.Session()
+                for title in titles:
+                    payload = Predict(text=title).json()
+                    try:
+                        response = session.post(
+                                service_settings.model_service_url, payload
+                            ).json()
+                        st.write(title)
+                        st.json(response)
 
-            resp = requests.get(url).json()
-            st.json(resp)
-            titles = [n["title"] for n in resp["feed"]]
-            titles = titles[:limit]
-            
-            session = requests.Session()
-            for title in titles:
-                payload = Predict(text=title).json()
-                response = session.post(
-                        service_settings.model_service_url, payload
-                    ).json()
-                st.write(title)
-                st.json(response)
-    
+                    except requests.exceptions.ConnectionError as e:
+                        st.error("Can't connect to model service !")
+                        service_logger.debug(e)
+
+            except requests.exceptions.ConnectionError as e:
+                st.error("Can't connect to api manager service !")
+                service_logger.debug(e)    
 
 
 def latest_feed():
-    pass
+    """Generate news feed."""
+
+    st.markdown("**FEATURE INFO PLACEHOLDER**")
+
+    st.warning("Feature not implemented yet :((")
 
 
 page_to_func_mapping = {
     "Intro": intro,
     "User based input": user_input,
-    "News feed set by user": user_based_feed,
+    "News selected by user": user_based_feed,
+    "Latest news feed": latest_feed,
 }
 
 page_to_exec = st.sidebar.selectbox(
-    "Select model inference option", page_to_func_mapping.keys()
+    "Select feature you want to use:", page_to_func_mapping.keys()
 )
 page_to_func_mapping[page_to_exec]()
