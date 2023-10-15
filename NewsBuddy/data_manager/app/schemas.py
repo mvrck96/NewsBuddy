@@ -15,7 +15,7 @@ class Author(AuthorBase):
     article_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TopicBase(BaseModel):
@@ -32,7 +32,7 @@ class Topic(TopicBase):
     article_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TickerBase(BaseModel):
@@ -51,7 +51,7 @@ class Ticker(TickerBase):
     article_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ArticleBase(BaseModel):
@@ -78,4 +78,4 @@ class Article(ArticleBase):
     tickers: list[Ticker] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True

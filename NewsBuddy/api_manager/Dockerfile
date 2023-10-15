@@ -7,7 +7,7 @@ ARG USER_ID=1001
 ARG GROUP_ID=1001
 
 RUN apt update && \
-    apt full-upgrade -y
+    apt full-upgrade -y 
 
 RUN python3 -m venv /$APP_NAME/.venv
 ENV PATH "/$APP_NAME/.venv/bin:$PATH"
@@ -23,7 +23,6 @@ RUN set -eux && \
 
 COPY app.py .
 COPY ./tools/ ./tools/
-COPY .env .
 
 # Remove binary files setuid/setgid
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
