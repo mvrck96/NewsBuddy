@@ -77,9 +77,13 @@ def user_based_feed():
             label="Select tickers", 
             options=["AAPL", "MSFT", "TSLA", "NVDA", "GOOGL"]
         )
+        tickers = tickers if len(tickers) > 0 else None
+
         topics = st.multiselect(
             label="Select topics", options=[i.value for i in AlphavantageTopics]
         )
+        topics = topics if len(topics) > 0 else None
+        
         limit = st.slider("Number of news", 0, 50, 10, 1)
 
         if st.form_submit_button("Analyze latest news !"):
@@ -88,9 +92,11 @@ def user_based_feed():
                 topics=topics,
                 limit=limit
             ).json()
+            st.json(api_man_payload)
             try:
                 api_man_resp = requests.post(service_settings.api_manager_url,
                                             api_man_payload)
+                st.json(api_man_payload)
                 titles = [n["title"] for n in api_man_resp["feed"]]
                 session = requests.Session()
                 for title in titles:
