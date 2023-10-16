@@ -44,21 +44,17 @@ setup_venv:
 #############################################
 ################# API MANAGER
 ##############################################
-api_manager:
+start_all:
 	@echo "Starting news api, prefect server and prefect agent containers"
 	cd NewsBuddy && \
 	docker-compose --profile all up --build -d && \
 	cd - && \
-	$(MAKE) pr_create_blocks && \
 	$(MAKE) pr_deploy
+
 
 #############################################
 ################# ORCHESTRATION: PREFECT
 ##############################################
-pr_create_blocks:
-	@echo "Create Prefect blocks: http://127.0.0.1:4200/blocks"
-	python ./NewsBuddy/orchestration/create_blocks.py
-
 pr_deploy:
 	@echo "Create Prefect deployment: http://127.0.0.1:4200/deployments/"
 	python ./NewsBuddy/api_manager/flows/fetch_news.py
