@@ -87,7 +87,7 @@ services:
     expose:
       - ${API_MANAGER_DOCKER_PORT}
     ports:
-      - ${API_MANAGER_DOCKER_PORT}:${API_MANAGER_DOCKER_PORT}
+      - ${API_MANAGER_DOCKER_PORT}:8000
     profiles:
       - all
       - api
