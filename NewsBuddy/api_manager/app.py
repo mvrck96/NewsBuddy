@@ -1,68 +1,20 @@
-""""""
-from datetime import datetime
-from enum import Enum
 from typing import List
 
 import requests
-from dotenv import find_dotenv, load_dotenv
 from fastapi import FastAPI, Query, Response, status
 from fastapi.responses import RedirectResponse
 from tools.logger import service_logger as logger
 from tools.settings import service_settings
 from tools.state import State
-
-load_dotenv(find_dotenv())
-
+from data_models import AlphavantageTopics
+from tools.utils import is_valid_date
+from data_models import UserNewsRequest, UserNewsResponse, ApiNews
 
 state = State()
 
 app = FastAPI()
 state.set_live_status(True)
 state.set_ready_status(True)
-
-#################################
-############## ALPHA VANTAGE
-#################################
-ALPHAVANTAGE_API_URL = "https://www.alphavantage.co/query"
-
-ALPHAVANTAGE_FUNCTION = "NEWS_SENTIMENT"
-ALPHAVANTAGE_TOKEN = service_settings.ALPHAVANTAGE_TOKEN
-
-
-class AlphavantageTopics(str, Enum):
-    """"""
-
-    EARNINGS = "earnings"
-    IPO = "ipo"
-    MERGERS_AND_ACQUSITIONS = "mergers_and_acqusitions"
-    FINANCIAL_MARKETS = "financial_markets"
-    FINANCE = "finance"
-    MANUFACTURING = "manufacturing"
-    REAL_ESTATE = "real_estate"
-    RETAIL_WHOLESAIL = "retail_wholesail"
-    TECHNOLOGY = "technology"
-    ECONOMY_MACRO = "economy_macro"
-    ECONOMY_FISCAL = "economy_fiscal"
-    ECONOMY_MONETARY = "economy_monetary"
-    LIFE_SCIENCES = "life_sciences"
-
-
-def is_valid_date(date_str, date_format="%Y%m%dT%H%M") -> bool:
-    """
-    Validate if a date string is in the correct format.
-
-    Args:
-        date_str (str): The date string to validate.
-        date_format (str, optional): The expected date format. Defaults to "%Y%m%dT%H%M".
-
-    Returns:
-        bool: True if the date string is in the correct format, False otherwise.
-    """
-    try:
-        datetime.strptime(date_str, date_format)
-        return True
-    except ValueError:
-        return False
 
 
 # User-side endpoints
@@ -96,8 +48,8 @@ def get_news(
 
     # Build the query parameters for the external API request
     params = {
-        "function": ALPHAVANTAGE_FUNCTION,
-        "apikey": ALPHAVANTAGE_TOKEN,
+        "function": "NEWS_SENTIMENT",
+        "apikey": service_settings.alphavantage_token,
     }
 
     if tickers:
@@ -119,12 +71,22 @@ def get_news(
         params["limit"] = limit
 
     try:
-        response = requests.get(ALPHAVANTAGE_API_URL, params=params)
+        response = requests.get(service_settings.alphavantage_url, params=params)
         response.raise_for_status()  # Raise an exception for non-2xx status codes
         data = response.json()
         return data
     except requests.exceptions.RequestException as exc:
         return {"error": f"Failed to fetch data from the external API: {str(exc)}"}
+
+
+@app.post("/user-news", tags=["News"])
+def get_user_news(req: UserNewsRequest) -> UserNewsResponse:
+    """Get news feed according to user settings."""
+
+    res = get_news(topics=req.topics, tickers=req.tickers)
+    feed = res["feed"][:req.limit - 1]
+    valid_feed = [ApiNews.model_validate(n) for n in feed]
+    return UserNewsResponse(feed=valid_feed)
 
 
 # Service-side endpoints
