@@ -2,7 +2,7 @@
 import sys
 
 from loguru import logger
-from pydantic import ValidationError
+from pydantic import ValidationError, AnyUrl
 from pydantic_settings import BaseSettings
 
 
@@ -13,14 +13,12 @@ class Settings(BaseSettings):
     service_version: str
     structured_logs: bool = False
 
-    ALPHAVANTAGE_TOKEN: str
+    alphavantage_token: str
+    alphavantage_url: AnyUrl
 
     class Config:  # NOQA
-        """ """
-
         env_file = ".env"
         env_file_encoding = "utf-8"
-
         extra = "allow"
 
 
