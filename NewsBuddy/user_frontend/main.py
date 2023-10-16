@@ -95,8 +95,9 @@ def user_based_feed():
             st.json(api_man_payload)
             try:
                 api_man_resp = requests.post(service_settings.api_manager_url,
-                                            api_man_payload)
-                st.json(api_man_payload)
+                                            api_man_payload).json()
+                st.json(api_man_resp)
+
                 titles = [n["title"] for n in api_man_resp["feed"]]
                 session = requests.Session()
                 for title in titles:
