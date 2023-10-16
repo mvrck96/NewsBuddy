@@ -21,7 +21,9 @@ RUN python -m pip install --upgrade pip
 RUN set -eux && \
     pip install --no-cache-dir --requirement requirements.txt
 
+COPY .env .
 COPY app.py .
+COPY data_models.py .
 COPY ./tools/ ./tools/
 
 # Remove binary files setuid/setgid
@@ -34,4 +36,4 @@ USER user
 
 CMD gunicorn app:app --worker-class uvicorn.workers.UvicornWorker\
     --workers 1\
-    --bind 0.0.0.0:${API_MANAGER_DOCKER_PORT}
+    --bind 0.0.0.0:8000
