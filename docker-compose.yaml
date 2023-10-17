@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  model_service:
+    container_name: model-service
+    image: model-service
+    build:
+      context: ./NewsBuddy/model_service
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - 8000:8000
+    env_file:
+      - ./NewsBuddy/model_service/.env
+
+  frontend:
+    container_name: user-frontend
+    image: user-frontend
+    build:
+      context: ./NewsBuddy/user_frontend/
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8501:8501
+    env_file:
+      - ./NewsBuddy/model_service/.env
+
+  prometheus:
+    container_name: newsbuddy-prometheus
+    image: prom/prometheus
+    volumes:
+      - ./infrastructure/prometheus:/etc/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--web.route-prefix=/'
+      - '--web.external-url=/infra/prometheus'
+    ports:
+      - 9090:9090
