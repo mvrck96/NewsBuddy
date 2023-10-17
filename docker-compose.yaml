@@ -1,18 +1,22 @@
-version: '3.8'
-
+version: '3.9'
 services:
+
+# Modelservice
   model_service:
-    container_name: model-service
+    container_name: model_service
     image: model-service
     build:
-      context: ./NewsBuddy/model_service
+      context: ./NewsBuddy/model_service/
       dockerfile: ./Dockerfile
     restart: always
     ports:
       - 8000:8000
     env_file:
       - ./NewsBuddy/model_service/.env
+    networks:
+      - common
 
+# UI
   frontend:
     container_name: user-frontend
     image: user-frontend
@@ -20,19 +24,199 @@ services:
       context: ./NewsBuddy/user_frontend/
       dockerfile: Dockerfile
     restart: always
+    env_file:
+      - ./NewsBuddy/user_frontend/.env
     ports:
       - 8501:8501
-    env_file:
-      - ./NewsBuddy/model_service/.env
+    networks:
+      - common
 
+# Apimanager
+  api_manager:
+    container_name: api_manager
+    build:
+      context: ./NewsBuddy/api_manager/
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env
+    # expose:
+    #   - 8001
+    ports:
+      - 8001:8001
+    networks:
+      - common
+    profiles:
+      - all
+      - api
+
+# Datamanager
+  data_manager_app:
+    container_name: data_manager
+    build:
+      context: ./NewsBuddy/data_manager/
+      dockerfile: Dockerfile
+    environment:
+      SQLALCHEMY_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@data_manager_postgres:${POSTGRES_PORT}/${POSTGRES_DATAMANAGER_DB}
+    env_file:
+      - .env
+    depends_on:
+      data_manager_postgres:
+        condition: service_healthy
+    ports:
+    - ${DATA_MANAGER_APP_PORT}:${DATA_MANAGER_APP_PORT}
+    networks:
+      - inner
+      - common
+    profiles:
+      - all
+      - data_manager
+
+  data_manager_postgres:
+    image: postgres:15.3-alpine
+    container_name: data_manager_postgres
+    env_file:
+      - .env    
+    environment:
+      - POSTGRES_DB=${POSTGRES_DATAMANAGER_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    expose:
+      - ${POSTGRES_PORT}
+    volumes:
+       - postgres_datamanager:/var/lib/postgresql/data
+    networks:
+      - inner
+    command:
+      - postgres
+      - -c
+      - max_connections=150
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "${POSTGRES_USER}"]
+    profiles:
+      - all
+      - data_manager
+  
+  data_manager_adminer:
+    container_name: data_manager_adminer
+    image: adminer:latest
+    restart: always
+    env_file:
+      - .env
+    environment:
+      ADMINER_DEFAULT_SERVER: data_manager_postgres
+      ADMINER_DESIGN: nette
+    ports:
+      - ${DATA_MANAGER_ADMINER_PORT}:${DATA_MANAGER_ADMINER_PORT}
+    networks:
+      - inner
+    depends_on:
+      data_manager_postgres:
+        condition: service_started
+    profiles:
+      - all 
+      - data_manager
+
+  # Prefect
+  # Prefect Server API and UI
+  prefect_server:
+    container_name: prefect_server
+    build: ./infrastructure/orchestration/server/
+    restart: always
+    networks:
+      - common
+    env_file:
+      - .env
+    volumes:
+      - prefect_data:/root/.prefect
+      - prefect_flows:/flows
+    entrypoint: ["./startup_server.sh"]
+    environment:
+      # If you want to access Prefect Server from anywhere other than the Docker host machine, you will need to change
+      # PREFECT_UI_URL to match the external hostname/IP used to load the UI in your web browser.
+      # PREFECT_UI_URL: http://127.0.0.0:4200/api
+      PREFECT_API_URL: http://${PREFECT_API_IP}:${PREFECT_API_PORT}/api
+      PREFECT_SERVER_API_HOST: 0.0.0.0
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+      PREFECT_LOGGING_SERVER_LEVEL: WARNING
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@prefect_postgres:${POSTGRES_PORT}/${POSTGRES_PREFECT_DB}
+    ports:
+      - ${PREFECT_API_PORT}:${PREFECT_API_PORT}
+    depends_on:
+      prefect_postgres:
+        condition: service_started
+    profiles:
+      - all
+      - server
+
+  # Prefect Agent
+  prefect_agent:
+    build: ./infrastructure/orchestration/agent/.
+    restart: always
+    networks:
+      - common
+    env_file:
+      - .env
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "agent", "start", "-q", "default"]
+    environment:
+      - PREFECT_API_URL=http://prefect_server:${PREFECT_API_PORT}/api
+    depends_on:
+      prefect_server:
+        condition: service_started
+    profiles:
+      - all
+      - agent
+    
+  # Prefect database
+  prefect_postgres:
+    image: postgres:15.3-alpine
+    container_name: prefect_postgres
+    env_file:
+      - .env
+    restart: always
+    networks:
+      - common
+    command:
+      - postgres
+      - -c
+      - max_connections=150
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_PREFECT_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+    expose:
+      - ${POSTGRES_PORT}
+    volumes:
+      - postgres_prefect:/var/lib/postgresql/data
+    profiles:
+      - all
+      - server
+
+  # Prometheus
   prometheus:
-    container_name: newsbuddy-prometheus
     image: prom/prometheus
+    container_name: prometheus
     volumes:
       - ./infrastructure/prometheus:/etc/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--web.route-prefix=/'
-      - '--web.external-url=/infra/prometheus'
+      # - '--web.route-prefix=/'
+      # - '--web.external-url=/infra/prometheus'
     ports:
       - 9090:9090
+    networks:
+      - common
+
+volumes:
+  postgres_prefect: 
+  postgres_datamanager:
+  prefect_data:
+  prefect_flows:
+
+networks:
+  common:
+    name: common
+  inner:
+
