@@ -124,13 +124,10 @@ def user_based_feed():
                 tickers=tickers, topics=topics, limit=limit
             ).json()
             try:
-                # api_man_resp = requests.post(
-                #     service_settings.api_manager_url + "/user-news",
-                #     api_man_payload,
-                # ).json()
-
-                with open("test.json", "r") as jf:
-                    api_man_resp = json.load(jf)
+                api_man_resp = requests.post(
+                    service_settings.api_manager_url + "/user-news",
+                    api_man_payload,
+                ).json()
 
                 session = requests.Session()
                 for n in api_man_resp["feed"]:
