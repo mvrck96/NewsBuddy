@@ -1,3 +1,4 @@
+import time
 import requests
 
 from data_models.predict_request import Predict
@@ -44,7 +45,7 @@ def base_predict(req: Predict) -> dict:
     Returns:
         dict: Predict-proba of three classes
     """
-    payload = {"inputs": req.text}
+    payload = {"inputs": req.text, "options": {"use_cache": True}}
     logger.info(f"Incoming request: {payload}")
     response = requests.post(API_URL, headers=HEADERS, json=payload)
     if (
