@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 import requests
 import streamlit as st
@@ -14,6 +15,7 @@ st.set_page_config(
     page_title="NewsBuddy",
     page_icon=":newspaper:",
     initial_sidebar_state="expanded",
+    layout="wide",
 )
 
 # Remove made with streamlit in footer
@@ -85,15 +87,15 @@ def user_input():
             if isinstance(res, list):
                 res = sorted(res[0], key=lambda x: x["score"], reverse=True)
 
-                c1, c2 = st.columns((1, 1))
-                c1.header("Score:")
+                c1, c2 = st.columns((1, 4))
+                c1.markdown("#### Sentiment score ⟶")
                 c2.metric(
                     label=res[0]["label"],
                     value=round(res[0]["score"], 4),
                     delta=round(res[0]["score"] - res[1]["score"], 4),
                 )
             else:
-                st.error("Model not ready, check logs.")
+                st.warning("Model not ready, wait a little.")
                 service_logger.info(res)
 
 
@@ -104,13 +106,14 @@ def user_based_feed():
 
     with st.form("news_feed_settings"):
         tickers = st.multiselect(
-            label="Select tickers",
+            label="Select tickers:",
             options=["AAPL", "MSFT", "TSLA", "NVDA", "GOOGL"],
         )
         tickers = tickers if len(tickers) > 0 else None
 
         topics = st.multiselect(
-            label="Select topics", options=[i.value for i in AlphavantageTopics]
+            label="Select news topics:",
+            options=[i.value for i in AlphavantageTopics],
         )
         topics = topics if len(topics) > 0 else None
 
@@ -129,17 +132,52 @@ def user_based_feed():
                 with open("test.json", "r") as jf:
                     api_man_resp = json.load(jf)
 
-                titles = [n["title"] for n in api_man_resp["feed"]]
                 session = requests.Session()
-                for title in titles:
-                    payload = Predict(text=title).json()
+                for n in api_man_resp["feed"]:
+                    payload = Predict(text=n["title"]).json()
                     try:
                         response = session.post(
                             service_settings.model_service_url + "/predict",
                             payload,
                         ).json()
-                        st.write(title.replace(":", "\:"))
-                        st.json(response)
+                        c1, c2, c3 = st.columns((1, 1, 1), gap="medium")
+
+                        title = n["title"].replace(":", "\:")
+                        url = n["url"]
+                        c1.markdown(f"#### [{title}]({url})")
+                        response = sorted(
+                            response[0], key=lambda x: x["score"], reverse=True
+                        )
+ 
+                        with c2:
+                            tp = datetime.strptime(n['time_published'],
+                                 "%Y%m%dT%H%M%S").strftime("%-d %b %y @ %H:%M")
+
+                            st.markdown(
+                                f"""
+                                **Time published:** {tp}
+
+                                **Source:** 
+
+                                **Author:** 
+                                """
+                                )
+                            
+                            with st.expander("Summary"):
+                                st.write(n['summary'])
+                        
+                        with c3:
+                            ic1, ic2 = st.columns((1, 1))
+                            ic1.markdown("#### Sentiment score: ")
+                            ic2.metric(
+                                label=response[0]["label"],
+                                value=round(response[0]["score"], 3),
+                                delta=round(
+                                    response[0]["score"] - response[1]["score"], 4
+                                ),
+                            )
+ 
+                        st.divider()
 
                     except requests.exceptions.ConnectionError as e:
                         st.error("Can't connect to model_service !")
