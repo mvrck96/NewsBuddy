@@ -432,7 +432,11 @@ disable=raw-checker-failed,
         too-few-public-methods,
         empty-docstring,
         import-error,
-        too-many-arguments
+        too-many-arguments,
+        use-dict-literal,
+        unused-import,
+        invalid-name,
+        line-too-long
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
