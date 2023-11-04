@@ -11,10 +11,9 @@ RUN apt update && \
 
 RUN python3 -m venv /$APP_NAME/.venv
 ENV PATH "/$APP_NAME/.venv/bin:$PATH"
-
 ARG APP_NAME=${APP_NAME:-api-manager}
 WORKDIR /$APP_NAME
-
+# RUN sh -c env
 COPY requirements.txt .
 
 RUN python -m pip install --upgrade pip

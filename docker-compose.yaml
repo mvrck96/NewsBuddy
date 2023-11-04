@@ -43,7 +43,7 @@ services:
     # expose:
     #   - 8001
     ports:
-      - 8001:8001
+      - 8001:8001  
     networks:
       - common
     profiles:
@@ -64,7 +64,7 @@ services:
       data_manager_postgres:
         condition: service_healthy
     ports:
-    - ${DATA_MANAGER_APP_PORT}:${DATA_MANAGER_APP_PORT}
+      - ${DATA_MANAGER_APP_PORT}:${DATA_MANAGER_APP_PORT}
     networks:
       - inner
       - common
@@ -122,7 +122,7 @@ services:
   # Prefect Server API and UI
   prefect_server:
     container_name: prefect_server
-    build: ./infrastructure/orchestration/server/
+    build: ./infrastructure/prefect/server/
     restart: always
     networks:
       - common
@@ -152,7 +152,7 @@ services:
 
   # Prefect Agent
   prefect_agent:
-    build: ./infrastructure/orchestration/agent/.
+    build: ./infrastructure/prefect/agent/.
     restart: always
     networks:
       - common
