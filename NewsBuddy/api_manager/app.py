@@ -8,7 +8,7 @@ from tools.settings import service_settings
 from tools.state import State
 from data_models import AlphavantageTopics
 from tools.utils import is_valid_date
-from data_models import UserNewsRequest, UserNewsResponse, ApiNews
+from data_models import UserNewsRequest, UserNewsResponse, ApiNews, BatchPredict
 
 state = State()
 
@@ -85,8 +85,16 @@ def get_user_news(req: UserNewsRequest) -> UserNewsResponse:
 
     res = get_news(topics=req.topics, tickers=req.tickers)
     feed = res["feed"][:req.limit - 1]
-    valid_feed = [ApiNews.model_validate(n) for n in feed]
+    valid_feed = [ApiNews.parse_obj(n) for n in feed]
     return UserNewsResponse(feed=valid_feed)
+
+@app.get("/send-news-to-model", tags=["News"])
+def send_news_to_model():
+    news = get_user_news(UserNewsRequest()).feed
+    titles = [n.title for n in news]
+    logger.info(titles)
+    res = requests.post("http://localhost:8000/batch-predict", data=titles)
+    logger.success(res)
 
 
 # Service-side endpoints

@@ -42,3 +42,9 @@ class ApiNews(BaseModel):
 class UserNewsResponse(BaseModel):
     """Whole news feed model, based on user settings."""
     feed: List[ApiNews]
+
+
+class BatchPredict(BaseModel):
+    batch: List[str]
+
+    

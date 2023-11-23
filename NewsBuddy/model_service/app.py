@@ -2,6 +2,7 @@ import time
 import requests
 
 from data_models.predict_request import Predict
+from data_models.batch_predict_request import BatchPredict
 from fastapi import FastAPI, HTTPException, Response, status
 from fastapi.responses import RedirectResponse
 from tools.logger import service_logger as logger
@@ -58,6 +59,15 @@ def base_predict(req: Predict) -> dict:
         logger.info(f"Response: {response.json()}")
         return response.json()
 
+
+@app.post("/batch-predict", tags=["Model"])
+def batch_predict(req: BatchPredict):
+    for n in req.batch:
+        r = base_predict(Predict(text=n))
+        logger.info((n, r))
+        # WRITE TO DB HERE
+    return True
+    
 
 # Service-side endpoints
 @app.get("/health/liveness", tags=["observability"])

@@ -3,7 +3,7 @@ import sys
 
 from loguru import logger
 from pydantic import ValidationError, AnyUrl
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -15,6 +15,8 @@ class Settings(BaseSettings):
 
     alphavantage_token: str
     alphavantage_url: AnyUrl
+
+    # model_service_url: AnyUrl
 
     class Config:  # NOQA
         env_file = ".env"
